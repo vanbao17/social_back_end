@@ -1,11 +1,22 @@
 const pool = require("../configs/connectDB");
 
 const getPosts = (req, res) => {
-  const query = `select p.ID,p.Content,a.ID as IDAccount,s.Name,a.Image_user,p.Create_at ,u.path,u.FileType from posts as p, account as a,students as s ,uploads as u
+  const query = `select s.MSV,p.ID,p.Content,a.ID as IDAccount,s.Name,a.Image_user,p.Create_at  from posts as p, account as a,students as s 
 where p.IDAccount=a.ID 
-and s.MSV=a.MSV
-and u.IDPost = p.ID`;
+and s.MSV=a.MSV`;
   pool.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).send("server error");
+    }
+    return res.json(results);
+  });
+};
+const getPostsIdPersonal = (req, res) => {
+  const { ID } = req.body;
+  const query = `select p.ID,p.Content,a.ID as IDAccount,s.Name,a.Image_user,p.Create_at  from posts as p, account as a,students as s 
+where p.IDAccount=a.ID and p.IDAccount=?
+and s.MSV=a.MSV`;
+  pool.query(query, [ID], (err, results) => {
     if (err) {
       return res.status(500).send("server error");
     }
@@ -44,4 +55,10 @@ const updatePost = (req, res) => {
     return res.status(200).send("OKE");
   });
 };
-module.exports = { getPosts, addPost, deletePost, updatePost };
+module.exports = {
+  getPosts,
+  addPost,
+  deletePost,
+  updatePost,
+  getPostsIdPersonal,
+};

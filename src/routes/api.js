@@ -1,11 +1,20 @@
 const express = require("express");
 const multer = require("multer");
-const { Login } = require("../controllers/UserControllers");
+const jwt = require("jsonwebtoken");
+const {
+  Login,
+  changePass,
+  imageUser,
+  imageBanner,
+  inforUser,
+  searchUser,
+} = require("../controllers/UserControllers");
 const {
   getPosts,
   addPost,
   deletePost,
   updatePost,
+  getPostsIdPersonal,
 } = require("../controllers/PostControllers");
 const {
   addFile,
@@ -18,6 +27,12 @@ const {
   updateCommentPost,
   deleteCommentPost,
 } = require("../controllers/CommentControllers");
+const {
+  checkConvensation,
+  addConvensation,
+  getConvens,
+  getMesseages,
+} = require("../controllers/MessControllers");
 
 const router = express.Router();
 const storage_upload_post = multer.diskStorage({
@@ -28,23 +43,51 @@ const storage_upload_post = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
+const verifyToken = (req, res, next) => {
+  const token = req.headers["authorization"];
+
+  if (!token) {
+    return res.status(403).send("Xì mười nghìn đây tui mở cho  :))))");
+  }
+
+  jwt.verify(token.split(" ")[1], process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(500).send("Failed to authenticate token");
+    }
+
+    req.idCustomers = decoded.id;
+    next();
+  });
+};
+
 const upload_file_post = multer({ storage: storage_upload_post });
 
 const initApi = (app) => {
   router.post("/login", Login);
+  router.post("/changePass", verifyToken, changePass);
+  router.post("/imageUser", verifyToken, imageUser);
+  router.post("/imageBanner", verifyToken, imageBanner);
+  router.post("/inforUser", verifyToken, inforUser);
+  router.post("/searchUser", verifyToken, searchUser);
 
-  router.get("/posts", getPosts);
-  router.post("/addPost", addPost);
-  router.post("/addFilePost", addFile);
-  router.post("/getFilePost", getFilePost);
-  router.post("/updatePost", updatePost);
-  router.post("/updateFilePost", updateFilePost);
+  router.get("/posts", verifyToken, getPosts);
+  router.post("/addPost", verifyToken, addPost);
+  router.post("/addFilePost", verifyToken, addFile);
+  router.post("/getFilePost", verifyToken, getFilePost);
+  router.post("/updatePost", verifyToken, updatePost);
+  router.post("/updateFilePost", verifyToken, updateFilePost);
+  router.post("/getPostsIdPersonal", verifyToken, getPostsIdPersonal);
+  router.post("/deletePost", verifyToken, deletePost);
 
-  router.post("/getCommentsPost", getCommentsPost);
-  router.post("/addCommentPost", addCommentPost);
-  router.post("/updateCommentPost", updateCommentPost);
-  router.post("/deleteCommentPost", deleteCommentPost);
+  router.post("/getCommentsPost", verifyToken, getCommentsPost);
+  router.post("/addCommentPost", verifyToken, addCommentPost);
+  router.post("/updateCommentPost", verifyToken, updateCommentPost);
+  router.post("/deleteCommentPost", verifyToken, deleteCommentPost);
 
+  router.post("/checkConvensation", verifyToken, checkConvensation);
+  router.post("/addConvensation", verifyToken, addConvensation);
+  router.post("/getConvens", verifyToken, getConvens);
+  router.post("/getMesseages", verifyToken, getMesseages);
   router.post(
     "/upload_file_post",
     upload_file_post.single("file"),

@@ -6,44 +6,51 @@ const formatArr = (arr) => {
     idReply: comment.id_reply,
     level: 0,
     IDAccount: comment.IDAccount,
+    MSV: comment.MSV,
     replies: [],
   }));
   return formattedComments;
 };
 const loopArr = (arr, brr) => {
-  if (brr.length == 0) {
-    return arr;
-  }
-  let fuck = [];
+  let remainingBrr = [...brr];
+  let newArr = [...arr];
 
-  arr.forEach((a) => {
-    if (a.replies.length != 0) {
-      const arrReplay = a.replies;
-      arrReplay.forEach((b) => {
-        const check = brr.filter((as) => as.idReply == b.id);
-        if (check.length != 0) {
-          b.replies = check;
-          check.level = b.level + 1;
+  while (remainingBrr.length > 0) {
+    let tempBrr = [];
+    newArr.forEach((a) => {
+      if (a.replies.length !== 0) {
+        a.replies.forEach((b) => {
+          const matchedReplies = remainingBrr.filter(
+            (as) => as.idReply === b.id
+          );
+          if (matchedReplies.length !== 0) {
+            b.replies = matchedReplies;
+            matchedReplies.forEach((reply) => {
+              reply.level = (b.level || 0) + 1;
+              tempBrr.push(reply);
+            });
+          }
+        });
+      } else {
+        const matchedReplies = remainingBrr.filter((s) => s.idReply === a.id);
+        if (matchedReplies.length !== 0) {
+          a.replies = matchedReplies;
+          matchedReplies.forEach((reply) => {
+            reply.level = (a.level || 0) + 1;
+            tempBrr.push(reply);
+          });
         }
-        check.map((ss) => (ss.level = b.level + 1));
-        fuck.push(...check);
-      });
-    } else {
-      const b = brr.filter((s) => s.idReply == a.id);
-      if (b.length != 0) {
-        a.replies = b;
       }
-      b.map((ss) => (ss.level += 1));
-      fuck.push(...b);
-    }
-  });
+    });
 
-  const a = brr.filter((b) => !fuck.includes(b));
-  return loopArr(arr, a);
+    remainingBrr = remainingBrr.filter((b) => !tempBrr.includes(b));
+    if (tempBrr.length === 0) break; // Nếu không có reply nào được thêm, dừng vòng lặp
+  }
+
+  return newArr;
 };
 
 const formatJsonComments = (comments) => {
-  const result = [];
   const arrDefault = comments.filter((t) => t.id_reply == null);
   const arrayQuery = comments.filter((t) => t.id_reply != null);
   const array = formatArr(arrDefault);

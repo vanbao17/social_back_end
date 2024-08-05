@@ -31,3 +31,19 @@ app.get("/", (req, res) => {
 initApi(app);
 viewEngine(app);
 app.use(express.static(path.join(__dirname, "build")));
+
+//socket
+const socketIo = require("socket.io");
+const socketSever = require("./serverSocket");
+// const socketSever = require("./serverSocket");
+const io = socketIo(http, {
+  cors: {
+    origin: "http://localhost:3000", // Đảm bảo đây là địa chỉ frontend của bạn
+    methods: ["GET", "POST"],
+  },
+  transports: ["websocket"],
+  allowEIO3: true,
+});
+io.on("connection", (socket) => {
+  socketSever(socket, io);
+});
