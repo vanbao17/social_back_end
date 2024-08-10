@@ -7,6 +7,8 @@ const formatArr = (arr) => {
     level: 0,
     IDAccount: comment.IDAccount,
     MSV: comment.MSV,
+    image_user: comment.image_user,
+    idComment: comment.idComment,
     replies: [],
   }));
   return formattedComments;
@@ -21,7 +23,7 @@ const loopArr = (arr, brr) => {
       if (a.replies.length !== 0) {
         a.replies.forEach((b) => {
           const matchedReplies = remainingBrr.filter(
-            (as) => as.idReply === b.id
+            (as) => as.idReply === b.idComment
           );
           if (matchedReplies.length !== 0) {
             b.replies = matchedReplies;
@@ -32,7 +34,9 @@ const loopArr = (arr, brr) => {
           }
         });
       } else {
-        const matchedReplies = remainingBrr.filter((s) => s.idReply === a.id);
+        const matchedReplies = remainingBrr.filter(
+          (s) => s.idReply === a.idComment
+        );
         if (matchedReplies.length !== 0) {
           a.replies = matchedReplies;
           matchedReplies.forEach((reply) => {

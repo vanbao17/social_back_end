@@ -2,12 +2,15 @@ const express = require("express");
 const multer = require("multer");
 const jwt = require("jsonwebtoken");
 const {
-  Login,
+  login,
   changePass,
   imageUser,
   imageBanner,
   inforUser,
   searchUser,
+  getNoti,
+  deleteNotification,
+  updateIsRead,
 } = require("../controllers/UserControllers");
 const {
   getPosts,
@@ -15,6 +18,10 @@ const {
   deletePost,
   updatePost,
   getPostsIdPersonal,
+  checkUserLike,
+  getCountLike,
+  getCountComment,
+  getPostWithId,
 } = require("../controllers/PostControllers");
 const {
   addFile,
@@ -43,6 +50,7 @@ const storage_upload_post = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
+const secretKey = "Phamvanbao_0123";
 const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
 
@@ -50,12 +58,12 @@ const verifyToken = (req, res, next) => {
     return res.status(403).send("Xì mười nghìn đây tui mở cho  :))))");
   }
 
-  jwt.verify(token.split(" ")[1], process.env.JWT_SECRET, (err, decoded) => {
+  jwt.verify(token.split(" ")[1], secretKey, (err, decoded) => {
     if (err) {
       return res.status(500).send("Failed to authenticate token");
     }
 
-    req.idCustomers = decoded.id;
+    req.MSV = decoded.id;
     next();
   });
 };
@@ -63,14 +71,18 @@ const verifyToken = (req, res, next) => {
 const upload_file_post = multer({ storage: storage_upload_post });
 
 const initApi = (app) => {
-  router.post("/login", Login);
+  router.post("/login", login);
   router.post("/changePass", verifyToken, changePass);
   router.post("/imageUser", verifyToken, imageUser);
   router.post("/imageBanner", verifyToken, imageBanner);
   router.post("/inforUser", verifyToken, inforUser);
   router.post("/searchUser", verifyToken, searchUser);
+  router.post("/getNoti", verifyToken, getNoti);
+  router.post("/deleteNotification", verifyToken, deleteNotification);
+  router.post("/updateIsRead", verifyToken, updateIsRead);
 
   router.get("/posts", verifyToken, getPosts);
+  router.post("/getPostWithId", getPostWithId);
   router.post("/addPost", verifyToken, addPost);
   router.post("/addFilePost", verifyToken, addFile);
   router.post("/getFilePost", verifyToken, getFilePost);
@@ -78,6 +90,9 @@ const initApi = (app) => {
   router.post("/updateFilePost", verifyToken, updateFilePost);
   router.post("/getPostsIdPersonal", verifyToken, getPostsIdPersonal);
   router.post("/deletePost", verifyToken, deletePost);
+  router.post("/checkUserLike", verifyToken, checkUserLike);
+  router.post("/getCountLike", verifyToken, getCountLike);
+  router.post("/getCountComment", verifyToken, getCountComment);
 
   router.post("/getCommentsPost", verifyToken, getCommentsPost);
   router.post("/addCommentPost", verifyToken, addCommentPost);
@@ -108,7 +123,7 @@ const initApi = (app) => {
       }
       const fileInfos = files.map((file) => ({
         name: file,
-        url: `http://localhost:3001/uploads/${file}`,
+        url: `https://pycheck.xyz/uploads/${file}`,
       }));
       res.json(fileInfos);
     });
