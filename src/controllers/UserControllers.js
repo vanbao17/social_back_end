@@ -26,9 +26,9 @@ let login = (req, res) => {
         secretKey,
         { expiresIn: "1h" }
       );
-      res.json({ token });
+      return res.json({ token });
     } else {
-      return res.status(401).send("Incorrect password");
+      return res.status(201).send("Incorrect password");
     }
   });
 };
