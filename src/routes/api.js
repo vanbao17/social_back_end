@@ -11,6 +11,14 @@ const {
   getNoti,
   deleteNotification,
   updateIsRead,
+  checkFriend,
+  getMyFriendSend,
+  getMySended,
+  getMyFriends,
+  cancelInvite,
+  acceptInvite,
+  declineInvite,
+  deleteInvite,
 } = require("../controllers/UserControllers");
 const {
   getPosts,
@@ -27,6 +35,7 @@ const {
   addFile,
   getFilePost,
   updateFilePost,
+  getFiles,
 } = require("../controllers/FileControllers");
 const {
   getCommentsPost,
@@ -80,6 +89,14 @@ const initApi = (app) => {
   router.post("/getNoti", verifyToken, getNoti);
   router.post("/deleteNotification", verifyToken, deleteNotification);
   router.post("/updateIsRead", verifyToken, updateIsRead);
+  router.post("/checkFriend", verifyToken, checkFriend);
+  router.post("/getMySended", verifyToken, getMySended);
+  router.post("/getMyFriendSend", verifyToken, getMyFriendSend);
+  router.post("/getMyFriends", verifyToken, getMyFriends);
+  router.post("/cancelInvite", verifyToken, cancelInvite);
+  router.post("/acceptInvite", verifyToken, acceptInvite);
+  router.post("/declineInvite", verifyToken, declineInvite);
+  router.post("/deleteInvite", verifyToken, deleteInvite);
 
   router.get("/posts", verifyToken, getPosts);
   router.post("/getPostWithId", getPostWithId);
@@ -103,6 +120,8 @@ const initApi = (app) => {
   router.post("/addConvensation", verifyToken, addConvensation);
   router.post("/getConvens", verifyToken, getConvens);
   router.post("/getMesseages", verifyToken, getMesseages);
+
+  router.post("/getFiles", verifyToken, getFiles);
   router.post(
     "/upload_file_post",
     upload_file_post.single("file"),

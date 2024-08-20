@@ -132,6 +132,126 @@ let updateIsRead = (req, res) => {
     return res.status(200).send("oke");
   });
 };
+const getFriend = (ID) => {
+  return new Promise((rs, rj) => {
+    const query = "select * from Friendships where ID=?";
+    pool.query(query, [ID], (err, results) => {
+      if (err) {
+        rj(err);
+      }
+      rs(results);
+    });
+  });
+};
+let addFriend = (ID1, ID2) => {
+  return new Promise((resolve, reject) => {
+    const query = `insert into Friendships(IDCustomer1,IDCustomer2,Status) values (?,?,'pending')`;
+
+    pool.query(query, [ID1, ID2], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results.insertId);
+    });
+  });
+};
+let getMyFriendSend = (req, res) => {
+  const { ID } = req.body;
+  const query = `select f.IDCustomer1,f.IDCustomer2,f.ID as idFriendShips ,a.MSV,f.Status,a.image_user,s.Name  from Friendships as f,students as s,account as a where f.IDCustomer2 = ? and f.IDCustomer1=a.ID and a.MSV = s.MSV and f.Status='pending'`;
+  pool.query(query, [ID], (err, rs) => {
+    if (err) throw err;
+    return res.json(rs);
+  });
+};
+let getMySended = (req, res) => {
+  const { ID } = req.body;
+  const query = `select f.IDCustomer1,f.IDCustomer2,f.ID as idFriendShips ,a.MSV,f.Status,a.image_user,s.Name  from Friendships as f,students as s,account as a where f.IDCustomer1 = ? and f.IDCustomer2=a.ID and a.MSV = s.MSV and f.Status='pending'`;
+  pool.query(query, [ID], (err, rs) => {
+    if (err) throw err;
+    return res.json(rs);
+  });
+};
+let getMyFriends = (req, res) => {
+  const { ID } = req.body;
+  const query = `SELECT 
+    CASE 
+        WHEN f.IDCustomer1 = ? THEN f.IDCustomer2
+        ELSE f.IDCustomer1
+    END as FriendID,
+    f.ID as idFriendShips, 
+    a.MSV, 
+    f.Status, 
+    a.image_user, 
+    s.Name
+FROM 
+    Friendships as f
+JOIN 
+    Account as a 
+    ON (a.ID = CASE 
+                 WHEN f.IDCustomer1 = ? THEN f.IDCustomer2
+                 ELSE f.IDCustomer1
+               END)
+JOIN 
+    Students as s 
+    ON a.MSV = s.MSV
+WHERE 
+    (f.IDCustomer2 = ? OR f.IDCustomer1 = ?)
+    AND f.Status = 'accepted';;
+`;
+  pool.query(query, [ID, ID, ID, ID], (err, rs) => {
+    if (err) throw err;
+    return res.json(rs);
+  });
+};
+let checkFriend = (req, res) => {
+  const { ID1, ID2 } = req.body;
+  const query =
+    "select * from Students as s, account as a,friendships as f where s.MSV=a.MSV and f.IDCustomer2=a.ID and f.IDCustomer1=? and f.IDCustomer2=?";
+  pool.query(query, [ID1, ID2], (err, rs) => {
+    if (err) throw err;
+    return res.json(rs);
+  });
+};
+let cancelInvite = (req, res) => {
+  const { ID1, ID2 } = req.body;
+  const query = "delete from Friendships where IDCustomer1=? and IDCustomer2=?";
+  pool.query(query, [ID1, ID2], (err, rs) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.status(200).send("oke");
+  });
+};
+let deleteInvite = (req, res) => {
+  const { ID } = req.body;
+  const query = "delete from Friendships where ID=?";
+  pool.query(query, [ID], (err, rs) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.status(200).send("oke");
+  });
+};
+let acceptInvite = (req, res) => {
+  const { ID } = req.body;
+  const query = "update Friendships set Status='accepted' where ID=?";
+  pool.query(query, [ID], (err, rs) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.status(200).send("oke");
+  });
+};
+let declineInvite = (req, res) => {
+  const { ID } = req.body;
+  const query = "update Friendships set Status='declined' where ID=?";
+  pool.query(query, [ID], (err, rs) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.status(200).send("oke");
+  });
+};
 module.exports = {
   login,
   changePass,
@@ -142,4 +262,14 @@ module.exports = {
   getNoti,
   deleteNotification,
   updateIsRead,
+  addFriend,
+  getFriend,
+  checkFriend,
+  getMyFriendSend,
+  getMySended,
+  getMyFriends,
+  declineInvite,
+  acceptInvite,
+  cancelInvite,
+  deleteInvite,
 };

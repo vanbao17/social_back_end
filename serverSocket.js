@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("./src/configs/connectDB");
+const { addFriend, getFriend } = require("./src/controllers/UserControllers");
 const socketSever = (socket, io) => {
   socket.on("joinPost", (IDPost) => {
     socket.join(IDPost);
@@ -104,7 +105,15 @@ const socketSever = (socket, io) => {
       if (stateNoti == "messenger") {
         content = "đã nhắn tin cho bạn";
       } else {
-        content = "đã bình luận bài viết của bạn";
+        if (stateNoti == "comment") {
+          content = "đã bình luận bài viết của bạn";
+        } else {
+          if (stateNoti == "inviteaccept") {
+            content = "đã chấp nhận lời mời kết bạn của bạn";
+          } else {
+            content = "đã gửi lời mời kết bạn đến bạn";
+          }
+        }
       }
     }
     const query = `insert into Notifications( IDAccount,IDPost,Sender_id,type,content,is_read ) values(?,?,?,?,?,false)`;
@@ -134,6 +143,14 @@ const socketSever = (socket, io) => {
         io.to(IDPost).emit("responseCountLike", count);
       });
     });
+  });
+  socket.on("addFriend", async (data) => {
+    const { ID1, ID2 } = data;
+    const responseAddFriend = await addFriend(ID1, ID2);
+    const listFriend = await getFriend(responseAddFriend);
+    if (listFriend) {
+      io.to(ID2).emit("responseAddFriend", listFriend[0]);
+    }
   });
 };
 module.exports = socketSever;

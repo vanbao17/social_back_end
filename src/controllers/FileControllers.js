@@ -33,8 +33,19 @@ const updateFilePost = (req, res) => {
     }
   );
 };
+const getFiles = (req, res) => {
+  const { ID } = req.body;
+  const query = `SELECT * FROM Uploads as u, Account as a, Students as s,Posts as p where u.IDPost=p.ID and p.IDAccount=a.ID and a.MSV = s.MSV AND a.ID=? ;`;
+  pool.query(query, [ID], (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.json(results);
+  });
+};
 module.exports = {
   addFile,
   getFilePost,
   updateFilePost,
+  getFiles,
 };
