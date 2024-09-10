@@ -1,7 +1,7 @@
 const mysql = require("mysql");
 const pool = mysql.createConnection({
   host: "localhost",
-  user: "psomwqdghosting_mysocial",
+  user: "root",
   password: "Phamvanbao_0123",
   database: "psomwqdghosting_mysocial",
   insecureAuth: true,

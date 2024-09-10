@@ -93,6 +93,72 @@ const getCountComment = (req, res) => {
     return res.json(results);
   });
 };
+const checkSavePost = (req, res) => {
+  const { IDAccount, IDPost } = req.body;
+  const query = `select * from savepost where IDAccount=? and IDPost=?`;
+  pool.query(query, [IDAccount, IDPost], (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.json(results);
+  });
+};
+const savePost = (req, res) => {
+  const { IDAccount, IDPost } = req.body;
+  const query = `insert into savepost(IDAccount,IDPost) values(?,?)`;
+  pool.query(query, [IDAccount, IDPost], (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.status(200).send("oke");
+  });
+};
+const getReportType = (req, res) => {
+  const query = `SELECT * FROM report_type;`;
+  pool.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.json(results);
+  });
+};
+const getSavePost = (req, res) => {
+  const { IDAccount } = req.body;
+  const query = `select sa.ID,p.ID as IDPost,a.image_user,s.Name,sa.create_at,p.Content from savepost as sa, students as s, account as a, posts as p 
+where sa.IDPost=p.ID
+AND p.IDAccount=a.ID
+AND a.MSV = s.MSV
+and sa.IDAccount=?`;
+  pool.query(query, [IDAccount], (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.json(results);
+  });
+};
+const deleteSavePost = (req, res) => {
+  const { ID } = req.body;
+  const query = `delete from savepost where ID=?`;
+  pool.query(query, [ID], (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.status(200).send("oke");
+  });
+};
+const reportPost = (req, res) => {
+  const { IDType, IDPost, IDSender } = req.body;
+  pool.query(
+    "insert into Reports(ID_Report_Type,IDPost,IDSender) values(?,?,?)",
+    [IDType, IDPost, IDSender],
+    (err, results) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+      return res.status(200).send("oke");
+    }
+  );
+};
 module.exports = {
   getPosts,
   addPost,
@@ -103,4 +169,10 @@ module.exports = {
   checkUserLike,
   getCountComment,
   getPostWithId,
+  savePost,
+  checkSavePost,
+  getSavePost,
+  deleteSavePost,
+  getReportType,
+  reportPost,
 };

@@ -5,6 +5,32 @@ const socketSever = (socket, io) => {
   socket.on("joinPost", (IDPost) => {
     socket.join(IDPost);
   });
+  socket.emit("me", socket.id);
+
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("callEnded");
+  });
+
+  socket.on("callUser", (data) => {
+    io.to(data.userToCall).emit("callUser", {
+      signal: data.signalData,
+      from: data.from,
+      msv: data.MSV,
+      name: data.name,
+    });
+  });
+  socket.on("endCall", (data) => {
+    socket.to(data.to).emit("callEnded");
+  });
+  socket.on("signal", (data) => {
+    socket.to(roomId).broadcast.emit("signal", data);
+  });
+  socket.on("answerCall", (data) => {
+    io.to(data.to).emit("callAccepted", data.signal);
+  });
+  socket.on("ice-candidate", (data) => {
+    peer.addIceCandidate(new RTCIceCandidate(data.candidate));
+  });
   socket.on("joinMess", (idConven) => {
     socket.join(idConven);
   });

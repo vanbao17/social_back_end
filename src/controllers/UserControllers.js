@@ -252,6 +252,16 @@ let declineInvite = (req, res) => {
     return res.status(200).send("oke");
   });
 };
+let addPageViews = (req, res) => {
+  const { ID, url } = req.body;
+  const query = "insert into PageViews(user_id,page_url) values(?,?)";
+  pool.query(query, [ID, url], (err, rs) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.status(200).send("oke");
+  });
+};
 module.exports = {
   login,
   changePass,
@@ -272,4 +282,5 @@ module.exports = {
   acceptInvite,
   cancelInvite,
   deleteInvite,
+  addPageViews,
 };

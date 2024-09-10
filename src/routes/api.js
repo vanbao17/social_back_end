@@ -19,6 +19,7 @@ const {
   acceptInvite,
   declineInvite,
   deleteInvite,
+  addPageViews,
 } = require("../controllers/UserControllers");
 const {
   getPosts,
@@ -30,6 +31,12 @@ const {
   getCountLike,
   getCountComment,
   getPostWithId,
+  savePost,
+  checkSavePost,
+  getSavePost,
+  deleteSavePost,
+  getReportType,
+  reportPost,
 } = require("../controllers/PostControllers");
 const {
   addFile,
@@ -71,7 +78,6 @@ const verifyToken = (req, res, next) => {
     if (err) {
       return res.status(500).send("Failed to authenticate token");
     }
-
     req.MSV = decoded.id;
     next();
   });
@@ -97,6 +103,7 @@ const initApi = (app) => {
   router.post("/acceptInvite", verifyToken, acceptInvite);
   router.post("/declineInvite", verifyToken, declineInvite);
   router.post("/deleteInvite", verifyToken, deleteInvite);
+  router.post("/addPageViews", verifyToken, addPageViews);
 
   router.get("/posts", verifyToken, getPosts);
   router.post("/getPostWithId", getPostWithId);
@@ -110,6 +117,12 @@ const initApi = (app) => {
   router.post("/checkUserLike", verifyToken, checkUserLike);
   router.post("/getCountLike", verifyToken, getCountLike);
   router.post("/getCountComment", verifyToken, getCountComment);
+  router.post("/checkSavePost", verifyToken, checkSavePost);
+  router.post("/savePost", verifyToken, savePost);
+  router.post("/getSavePost", verifyToken, getSavePost);
+  router.post("/deleteSavePost", verifyToken, deleteSavePost);
+  router.get("/getReportType", verifyToken, getReportType);
+  router.post("/reportPost", verifyToken, reportPost);
 
   router.post("/getCommentsPost", verifyToken, getCommentsPost);
   router.post("/addCommentPost", verifyToken, addCommentPost);
@@ -142,7 +155,7 @@ const initApi = (app) => {
       }
       const fileInfos = files.map((file) => ({
         name: file,
-        url: `https://pycheck.xyz/uploads/${file}`,
+        url: `http://localhost:3001/uploads/${file}`,
       }));
       res.json(fileInfos);
     });

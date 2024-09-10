@@ -38,7 +38,7 @@ const socketSever = require("./serverSocket");
 // const socketSever = require("./serverSocket");
 const io = socketIo(http, {
   cors: {
-    origin: "https://vbsocial.vercel.app", // Đảm bảo đây là địa chỉ frontend của bạn
+    origin: "http://localhost:3000", // Đảm bảo đây là địa chỉ frontend của bạn
     methods: ["GET", "POST"],
   },
   transports: ["websocket"],
